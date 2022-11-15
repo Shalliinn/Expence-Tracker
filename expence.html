@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="addform">
+        <h1>Expence Tracker</h1>
+
+    <label for="expence">Choose expense-amount:</label><br>
+    <input type="number" id="expence"><br>
+    <label for="description">Choose description</label><br>
+    <input type="text" id="description"><br>
+    <label for="category">Choose a category:</label><br>
+  <select id="category" name="category">
+    <option value="rent">rent</option>
+    <option value="drinks">drinks</option>
+    <option value="food">food</option>
+    <option value="fuel">Fuel</option>
+    <option value="ticket">Ticket</option>
+  </select><br><br><br>
+    <input type="submit" value="Add expences"><br>
+    <ul id="users"></ul>
+</form>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.1.2/axios.min.js"></script>
+<script>
+
+var Form=document.getElementById('addform')
+var expence=document.getElementById('expence');
+var description=document.getElementById('description');
+var category=document.getElementById('category');
+var userList=document.getElementById('users')
+
+
+let flag=0;
+let usrid;
+
+
+Form.addEventListener('submit',addUser);
+document.addEventListener('DOMContentLoaded',reload);
+
+function addUser(e)
+{
+    e.preventDefault();
+    let Obj={
+            expence:expence.value,
+            description:description.value,
+            category:category.value
+        }
+
+if(flag==0){
+    newUser(Obj);
+}
+else{
+   editUser(Obj)
+   flag=0;
+}
+}
+
+function reload(e){
+    e.preventDefault();
+     reloadAsync();
+}
+
+function showonscreen(data)
+{
+ var li=document.createElement('li');
+ li.className='item';
+ li.appendChild(document.createTextNode(`${data.expence}-${data.description}-${data.category}`));
+
+ var deleteBtn=document.createElement('button');
+ deleteBtn.className='btn';
+ deleteBtn.appendChild(document.createTextNode('delete'));
+ li.appendChild(deleteBtn);
+
+ var editBtn=document.createElement('button');
+ editBtn.className='btn';
+ editBtn.appendChild(document.createTextNode('edit'));
+ li.appendChild(editBtn);
+
+userList.appendChild(li);
+userList.addEventListener('click',deleteuser);
+userList.addEventListener('click',edituser);
+
+function deleteuser(e)
+{
+    if(e.target==deleteBtn)
+    {
+        let li=e.target.parentElement;
+        deletee(li);
+        userList.removeChild(li); 
+    }
+}
+
+function edituser(e)
+ {
+    if(e.target==editBtn)
+    {
+      let li=e.target.parentElement;
+      flag=1;
+      edit(li);
+      userList.removeChild(li);     
+    }
+ }
+}
+
+    async function newUser(Obj)
+     {
+       let data=await axios.post("http://localhost:3000/add-expense",Obj)
+       showonscreen(Obj);
+     }  
+
+    async function editUser(Obj)
+     {
+        let data2=await axios.post(`http://localhost:3000/edit-expense/${usrid}`,Obj)
+        showonscreen(Obj);
+     }
+
+    async function reloadAsync()
+     {
+        let response=await axios.get("http://localhost:3000/get-expense");
+        for(var i=0;i<response.data.Allexp.length;i++){
+            showonscreen(response.data.Allexp[i])
+         }
+     }
+
+    async function deletee(li)
+     {
+        let response= await axios.get("http://localhost:3000/get-expense")
+        for(var i=0;i<response.data.Allexp.length;i++){
+              if(li.innerHTML.indexOf(response.data.Allexp[i].description)!=-1){
+                 axios.delete(`http://localhost:3000/delete-expense/${response.data.Allexp[i].id}`)
+            }
+     } 
+    }
+   
+    async function edit(li)
+      {
+        let response=await axios.get("http://localhost:3000/get-expense")
+                       
+     for(var i=0;i<response.data.Allexp.length;i++){
+        if(li.innerHTML.indexOf(response.data.Allexp[i].description)!=-1){
+             Form.querySelector('#expence').value=response.data.Allexp[i].expence
+             Form.querySelector('#description').value=response.data.Allexp[i].description
+             Form.querySelector('#category').value=response.data.Allexp[i].category;
+             usrid= response.data.Allexp[i].id
+                }
+            }
+      }
+
+
+</script>
+</body>
+</html>

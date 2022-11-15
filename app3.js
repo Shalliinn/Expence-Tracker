@@ -16,7 +16,8 @@ const Expuser = require('./models/exp-user');
 app.use(cors());
 const userRoutes=require('./routes/expusers')
 app.use(userRoutes)
-
+const expenseRoutes=require('./routes/tracker')
+app.use(expenseRoutes)
 
 
 sequelize
