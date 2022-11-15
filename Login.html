@@ -47,7 +47,17 @@ function addItem(e){
         .catch((err)=>{
             var message=document.createElement('div')
             message.classList.add('message')
-            const msgcontent=`<span class="message">${err} Somethings missing </span>`
+            console.log(err.response.request.status);
+        if(err.response.request.status=="404"){
+            var y=' User not found '
+        }
+        else if(err.response.request.status=="401"){
+            var y="user is unauthorized"
+        }
+        else{
+            var y="Somethings missing"
+        }
+        const msgcontent=`<span class="message">${err} ${y} </span>`
            message.innerHTML=msgcontent
            msgrow.append(message)
            setTimeout(()=>{

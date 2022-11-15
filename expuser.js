@@ -35,13 +35,20 @@ exports.existinguser=(req,res,next)=>{
     if(email.length==0 || password.length==0){
         return res.status(400).json({err: "somethings missing"})
     }
-    Expuser.findAll({where:{email:email,password:password}})
+    Expuser.findAll({where:{email:email}})
     .then((user)=>{
-     if(user.length==0){
-        res.status(200).json({message:"User dosen't exist create new"})  
-     }
+        if(user.length>0){
+            const User=user[0].toJSON()
+            console.log(User.email,'41');
+            if(User.password!==password){
+                res.status(401).json({message:"Password is wrong"})
+             }
+             else{
+                res.status(200).json({message:"Successfully logged in"})
+             }
+        }
      else{
-        res.status(200).json({message:"Successfully logged in"})
+        res.status(404).json({message:"User not exist"})
      }
     })
     .catch(err=>{console.log(err)})
