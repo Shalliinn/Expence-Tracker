@@ -109,7 +109,8 @@ function edituser(e)
 
     async function newUser(Obj)
      {
-       let data=await axios.post("http://localhost:3000/add-expense",Obj)
+      const token=localStorage.getItem('token')
+       let data=await axios.post("http://localhost:3000/add-expense",Obj,{headers:{'Authorization':token}})
        showonscreen(Obj);
      }  
 
@@ -120,8 +121,9 @@ function edituser(e)
      }
 
     async function reloadAsync()
-     {
-        let response=await axios.get("http://localhost:3000/get-expense");
+     {  
+      const token=localStorage.getItem('token')
+        let response=await axios.get("http://localhost:3000/get-expense",{headers:{'Authorization':token}});
         for(var i=0;i<response.data.Allexp.length;i++){
             showonscreen(response.data.Allexp[i])
          }
@@ -129,7 +131,8 @@ function edituser(e)
 
     async function deletee(li)
      {
-        let response= await axios.get("http://localhost:3000/get-expense")
+      const token=localStorage.getItem('token')
+        let response= await axios.get("http://localhost:3000/get-expense",{headers:{'Authorization':token}})
         for(var i=0;i<response.data.Allexp.length;i++){
               if(li.innerHTML.indexOf(response.data.Allexp[i].description)!=-1){
                  axios.delete(`http://localhost:3000/delete-expense/${response.data.Allexp[i].id}`)

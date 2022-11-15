@@ -1,14 +1,16 @@
 const Expenseuser=require('../models/expenseuser')
 
-
 exports.postexpense=(req,res,next)=>{
     const expence=req.body.expence
     const description=req.body.description
     const category =req.body.category
+    //.log(req.user.userId,'8');
+    const id=req.user.userId
     Expenseuser.create({
         expence:expence,
         description:description,
-        category:category
+        category:category,
+        expuserId:id
     })
     .then((data)=>{
         res.json(data)
@@ -16,9 +18,10 @@ exports.postexpense=(req,res,next)=>{
 }
 
 exports.getexpense=(req,res,next)=>{
-    Expenseuser.findAll()
+  //  console.log(req.user.userId,'19');
+    Expenseuser.findAll({where: {expuserId:req.user.userId}})
     .then((exp)=>{
-     
+   //  console.log(exp);
         res.status(200).json({Allexp:exp})
      })
 .catch (error=>{
@@ -27,7 +30,7 @@ exports.getexpense=(req,res,next)=>{
  }
  
  exports.deleteexpense=(req,res,next)=>{
-   const Eid=req.params.id;
+   const Eid=req.params.id; 
    Expenseuser.destroy({where: {id:Eid}})
    .then((data)=>{
     res.sendStatus(200)

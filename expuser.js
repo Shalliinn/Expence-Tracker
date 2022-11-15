@@ -2,7 +2,7 @@
 
 const Expuser=require(('../models/exp-user'))
 const bcrypt=require('bcrypt')
-
+const jwt=require('jsonwebtoken')
 exports.newuser=  (req,res,next)=>{
     // const name = req.body.name;
     // const email = req.body.email;
@@ -24,13 +24,17 @@ bcrypt.hash(password,10,(err,hash)=>{
                email:email,
                password:hash
            })
-           .then((data)=>{
+           .then(()=>{
                res.status(200).json({message:"User Created"})
            }).catch(err=>console.log(err))
        }
     })   
 })
 
+}
+
+function generateAccessToken(id,name){
+return jwt.sign({userId:id,name:name},'mysecretekey')
 }
 
 exports.existinguser=(req,res,next)=>{
@@ -49,7 +53,7 @@ exports.existinguser=(req,res,next)=>{
                     res.status(500).json({message:"something went wrong"})
                  }
                  else if(result===true){
-                    res.status(200).json({message:"Successfully logged in"})
+                    res.status(200).json({message:"Successfully logged in",token:generateAccessToken(User.id,User.name)})
                  }
                  else{
                     res.status(401).json({message:"Password is incoorect"})
@@ -61,6 +65,4 @@ exports.existinguser=(req,res,next)=>{
      }
     })
     .catch(err=>{console.log(err)})
-
-
 }
