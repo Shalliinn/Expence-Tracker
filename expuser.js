@@ -1,7 +1,7 @@
 //const User = require("../models/user");
 
 const Expuser=require(('../models/exp-user'))
-
+const bcrypt=require('bcrypt')
 
 exports.newuser=  (req,res,next)=>{
     // const name = req.body.name;
@@ -12,22 +12,25 @@ if(name.length==0 || email.length==0 || password.length==0){
     return res.status(400).json({err: "somethings missing"})
 }
 
- Expuser.findAll({where:{email:email}})
- .then((user)=>{
-    if(user.length>0){
-       res.status(200).json({message:"User already exist"})
+bcrypt.hash(password,10,(err,hash)=>{
+    Expuser.findAll({where:{email:email}})
+    .then((user)=>{
+       if(user.length>0){
+          res.status(200).json({message:"User already exist"})
+          }
+       else{
+           Expuser.create({
+               name:name,
+               email:email,
+               password:hash
+           })
+           .then((data)=>{
+               res.status(200).json({message:"User Created"})
+           }).catch(err=>console.log(err))
        }
-    else{
-        Expuser.create({
-            name:name,
-            email:email,
-            password:password
-        })
-        .then((data)=>{
-            res.status(200).json({message:"User Created"})
-        }).catch(err=>console.log(err))
-    }
- })   
+    })   
+})
+
 }
 
 exports.existinguser=(req,res,next)=>{
@@ -40,12 +43,18 @@ exports.existinguser=(req,res,next)=>{
         if(user.length>0){
             const User=user[0].toJSON()
             console.log(User.email,'41');
-            if(User.password!==password){
-                res.status(401).json({message:"Password is wrong"})
-             }
-             else{
-                res.status(200).json({message:"Successfully logged in"})
-             }
+
+            bcrypt.compare(password,User.password,(err,result)=>{
+                if(err){
+                    res.status(500).json({message:"something went wrong"})
+                 }
+                 else if(result===true){
+                    res.status(200).json({message:"Successfully logged in"})
+                 }
+                 else{
+                    res.status(401).json({message:"Password is incoorect"})
+                 }
+            })
         }
      else{
         res.status(404).json({message:"User not exist"})

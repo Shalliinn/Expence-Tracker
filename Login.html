@@ -52,7 +52,7 @@ function addItem(e){
             var y=' User not found '
         }
         else if(err.response.request.status=="401"){
-            var y="user is unauthorized"
+            var y="password is incorrect"
         }
         else{
             var y="Somethings missing"
