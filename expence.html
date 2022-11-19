@@ -31,6 +31,9 @@
 </div>
 <button id="rzp-button1">Buy Premium</button>
 <button onclick="download()" id="downloadexpense">Download File</button>
+<div id="file">
+  <ul id="numbers"></ul>
+</div>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 
@@ -69,6 +72,7 @@ else{
 function reload(e){
     e.preventDefault();
      reloadAsync();
+     
 }
 function showonscreen1(data){
   var name=data.name;
@@ -150,7 +154,7 @@ function edituser(e)
      {  
       const token=localStorage.getItem('token')
         let response=await axios.get("http://localhost:3000/get-expense",{headers:{'Authorization':token}});
-      //  console.log(response,'127');
+      console.log(response,'127');
    // console.log(response.data.name,'146');
         if(response.data.ispremiumuser){
           
@@ -174,27 +178,47 @@ function edituser(e)
         }
       
         }
+     
+showfile(response.data)
      }
 
 function download(){
-    axios.get('http://localhost:3000/user/download', { headers: {"Authorization" : token} })
+    axios.get('http://localhost:3000/download', { headers: {"Authorization" : token} })
     .then((response) => {
-        if(response.status === 201){
+      console.log(response.data,'182');
+        if(response.status === 200){
             //the bcakend is essentially sending a download link
             //  which if we open in browser, the file would download
-            var a = document.createElement("a");
-            a.href = response.data.fileUrl;
+           var a = document.createElement("a");
+            a.href = response.data.fileUrl; 
             a.download = 'myexpense.csv';
             a.click();
+
         } else {
             throw new Error(response.data.message)
         }
 
     })
     .catch((err) => {
-        showError(err)
+        console.log(err)
     });
   }
+
+function showfile(Data){  
+const files=Data.file;
+var ul=document.getElementById('numbers')
+    var dom=document.getElementById('file')
+    for(var j=0;j<files.length;j++){
+let b= document.createElement('a'); 
+b.href=files[j].fileUrl;
+b.innerHTML=`file${j}`
+ul.appendChild(b)
+    }
+    dom.appendChild(ul)
+  }
+
+
+
 
 
     async function deletee(li)
