@@ -3,11 +3,16 @@ const Expuser=require('../models/exp-user')
 const S3service=require('../services/s3services')
 const Userservices=require('../services/userservices')
 const files=require('../models/file')
+//var  Expense_Per_Page=2
+
+
 exports.postexpense=(req,res,next)=>{
     const expence=req.body.expence
     const description=req.body.description
     const category =req.body.category
     //.log(req.user.userId,'8');
+  //Expense_Per_Page=req.body.exp_per_page;
+    
     const id=req.user.id
     Expenseuser.create({
         expence:expence,
@@ -21,14 +26,24 @@ exports.postexpense=(req,res,next)=>{
 }
 
 exports.getexpense=(req,res,next)=>{
-   console.log(req.user.name,'19');
+  console.log(req.params.expe,'19');
+   console.log(req.query.page,'27')
+   const page=req.query.page;
+   var total
+   const Per_Page=+req.params.expe;
+   console.log(Per_Page,'34')
+   req.user.getExpenes().then((expence)=>{;
+  total=expence.length
+   }) 
 if(req.user.ispremiumuser){
-    Expuser.findAll({include:['expenes']})
+   return Expuser.findAll({include:['expenes']})
     .then((alluser)=>{
        return req.user.getFiles()
        .then((files)=>{
-        console.log(files,'30');
-        res.status(200).json({user:alluser,ispremiumuser:req.user.ispremiumuser,name:req.user.name,file:files})
+     return req.user.getExpenes({offset:(page-1)*Per_Page,limit:Per_Page}).then((exp)=>{
+      res.status(200).json({user:alluser,expense:exp,ispremiumuser:req.user.ispremiumuser,name:req.user.name,file:files,page:page,Expense_Per_Page:Per_Page,total:total})
+
+       })
        })
 
      })
@@ -37,13 +52,13 @@ if(req.user.ispremiumuser){
 })
 }
 else{
-    Expenseuser.findAll({where: {expuserId:req.user.id}})
+    Expenseuser.findAll({where: {expuserId:req.user.id},offset:(page-1)*Per_Page,limit:Per_Page})
     .then((alluser)=>{
         return req.user.getFiles()
        .then((files)=>{
-        console.log(files,'30');
+        
  //  console.log(exp);
-        res.status(200).json({user:alluser,ispremiumuser:req.user.ispremiumuser,file:files})
+        res.status(200).json({user:alluser,ispremiumuser:req.user.ispremiumuser,file:files,page:page,Expense_Per_Page:Per_Page,total:total})
     })
      })
 .catch (error=>{

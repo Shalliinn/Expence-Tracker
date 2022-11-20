@@ -3,6 +3,7 @@
 const Expuser=require(('../models/exp-user'))
 const bcrypt=require('bcrypt')
 const jwt=require('jsonwebtoken')
+
 exports.newuser=  (req,res,next)=>{
     // const name = req.body.name;
     // const email = req.body.email;
@@ -22,7 +23,8 @@ bcrypt.hash(password,10,(err,hash)=>{
            Expuser.create({
                name:name,
                email:email,
-               password:hash
+               password:hash,
+               ispremiumuser:false
            })
            .then(()=>{
                res.status(200).json({message:"User Created"})
@@ -30,11 +32,12 @@ bcrypt.hash(password,10,(err,hash)=>{
        }
     })   
 })
-
 }
 
+
+
 function generateAccessToken(id,name){
-return jwt.sign({userId:id,name:name},'mysecretekey')
+return jwt.sign({userId:id,name:name},process.env.TOKEN_SECRET)
 }
 
 exports.existinguser=(req,res,next)=>{

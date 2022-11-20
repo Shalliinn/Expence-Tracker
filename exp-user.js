@@ -18,7 +18,9 @@ const Expuser=sequelize.define('expuser',{
     },
     password:{
 type:Sequelize.STRING,
-unique:true,
+    },
+    ispremiumuser: {
+        type:Sequelize.BOOLEAN
     }
 })
 module.exports=Expuser;

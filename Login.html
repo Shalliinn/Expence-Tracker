@@ -14,15 +14,19 @@
     <label for="password"> Password:</label><br>
     <input type="password" id="password" ><br>
 
-    <input type="submit" value="SignUp"><br>
+    <input type="submit" value="Login"><br><br>
+    
+
     <ul id="users"></ul>
 
     </form>
+    <button id="forgot" onclick="location='forgot.html'">forgot Password</button>
+
     <div id="msg">
-
     </div>
-<a href="signup.html">New User-Signup</a>
 
+<a href="signup.html">New User-Signup</a>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.1.2/axios.min.js"></script>
 <script>
     var Form=document.getElementById('addform')
@@ -40,9 +44,10 @@ function addItem(e){
         }
         axios.post("http://localhost:3000/user/login",UserDetails)
         .then((response)=>{
-            console.log(response.data.message,'43');
+            console.log(response,'43');
             alert(response.data.message)
-           // window.location.href="signup.html"
+            localStorage.setItem('token',response.data.token)
+            window.location.href="expence.html"
         })
         .catch((err)=>{
             var message=document.createElement('div')
@@ -57,7 +62,7 @@ function addItem(e){
         else{
             var y="Somethings missing"
         }
-        const msgcontent=`<span class="message">${err} ${y} </span>`
+        const msgcontent=`<span class="message">${err}${y} </span>`
            message.innerHTML=msgcontent
            msgrow.append(message)
            setTimeout(()=>{
